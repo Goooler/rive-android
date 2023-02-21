@@ -17,14 +17,6 @@ class RiveSwitch(context: Context, attrs: AttributeSet? = null) :
     private var stateMachineName: String? = null
     private lateinit var booleanStateInput: String
 
-    private fun defaultedString(value: String?, default: String): String {
-        value?.let {
-            return it
-        }
-        return default
-    }
-
-
     init {
         context.theme.obtainStyledAttributes(
             attrs,
@@ -35,22 +27,10 @@ class RiveSwitch(context: Context, attrs: AttributeSet? = null) :
                 app.rive.runtime.example.R.styleable.RiveSwitch_riveResource,
                 -1
             )
-            stateMachineName =
-                it.getString(app.rive.runtime.example.R.styleable.RiveSwitch_riveStateMachine)
-
-            onAnimation = defaultedString(
-                it.getString(app.rive.runtime.example.R.styleable.RiveSwitch_riveOnAnimation),
-                "on"
-            )
-            offAnimation = defaultedString(
-                it.getString(app.rive.runtime.example.R.styleable.RiveSwitch_riveOffAnimation),
-                "off"
-            )
-
-            booleanStateInput = defaultedString(
-                it.getString(app.rive.runtime.example.R.styleable.RiveSwitch_riveBooleanStateInput),
-                "toggle"
-            )
+            stateMachineName = it.getString(app.rive.runtime.example.R.styleable.RiveSwitch_riveStateMachine)
+            onAnimation = it.getString(app.rive.runtime.example.R.styleable.RiveSwitch_riveOnAnimation) ?: "on"
+            offAnimation = it.getString(app.rive.runtime.example.R.styleable.RiveSwitch_riveOffAnimation) ?: "off"
+            booleanStateInput = it.getString(app.rive.runtime.example.R.styleable.RiveSwitch_riveBooleanStateInput) ?: "toggle"
 
             val resourceBytes = resources.openRawResource(resourceId).readBytes()
             val riveFile = File(resourceBytes)
@@ -75,15 +55,13 @@ class RiveSwitch(context: Context, attrs: AttributeSet? = null) :
     }
 
     private fun setStateMachine(checked: Boolean) {
-        riveArtboardRenderer.let { drawable ->
-            stateMachineName?.let { stateMachine ->
-                drawable.setBooleanState(stateMachine, booleanStateInput, checked)
-            }
+        stateMachineName?.let { stateMachine ->
+            riveArtboardRenderer.setBooleanState(stateMachine, booleanStateInput, checked)
         }
     }
 
     override fun setChecked(checked: Boolean) {
-        var output = super.setChecked(checked)
+        val output = super.setChecked(checked)
 
         if (stateMachineName == null) {
             setCheckedAnimation(checked)
@@ -95,19 +73,7 @@ class RiveSwitch(context: Context, attrs: AttributeSet? = null) :
     }
 
 
-    override fun getTextOn(): CharSequence {
-        super.getTextOn()?.let {
-            return it
-        }
-        return ""
-    }
+    override fun getTextOn(): CharSequence = super.getTextOn() ?: ""
 
-    override fun getTextOff(): CharSequence {
-        super.getTextOn()?.let {
-            return it
-        }
-        return ""
-    }
-
-
+    override fun getTextOff(): CharSequence = super.getTextOn() ?: ""
 }
