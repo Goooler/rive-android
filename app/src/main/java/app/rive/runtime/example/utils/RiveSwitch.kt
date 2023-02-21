@@ -3,6 +3,7 @@ package app.rive.runtime.example.utils
 import android.content.Context
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatToggleButton
+import androidx.core.content.res.use
 import app.rive.runtime.kotlin.RiveArtboardRenderer
 import app.rive.runtime.kotlin.core.File
 
@@ -10,11 +11,11 @@ class RiveSwitch(context: Context, attrs: AttributeSet? = null) :
 
     AppCompatToggleButton(context, attrs) {
 
-    var riveArtboardRenderer: RiveArtboardRenderer;
-    var onAnimation: String;
-    var offAnimation: String;
-    var stateMachineName: String?;
-    var booleanStateInput: String;
+    private lateinit var riveArtboardRenderer: RiveArtboardRenderer
+    private lateinit var onAnimation: String
+    private lateinit var offAnimation: String
+    private var stateMachineName: String? = null
+    private lateinit var booleanStateInput: String
 
     private fun defaultedString(value: String?, default: String): String {
         value?.let {
@@ -29,40 +30,35 @@ class RiveSwitch(context: Context, attrs: AttributeSet? = null) :
             attrs,
             app.rive.runtime.example.R.styleable.RiveSwitch,
             0, 0
-        ).apply {
-            try {
-                val resourceId = getResourceId(
-                    app.rive.runtime.example.R.styleable.RiveSwitch_riveResource,
-                    -1
-                )
-                stateMachineName =
-                    getString(app.rive.runtime.example.R.styleable.RiveSwitch_riveStateMachine);
+        ).use {
+            val resourceId = it.getResourceId(
+                app.rive.runtime.example.R.styleable.RiveSwitch_riveResource,
+                -1
+            )
+            stateMachineName =
+                it.getString(app.rive.runtime.example.R.styleable.RiveSwitch_riveStateMachine)
 
-                onAnimation = defaultedString(
-                    getString(app.rive.runtime.example.R.styleable.RiveSwitch_riveOnAnimation),
-                    "on"
-                )
-                offAnimation = defaultedString(
-                    getString(app.rive.runtime.example.R.styleable.RiveSwitch_riveOffAnimation),
-                    "off"
-                )
+            onAnimation = defaultedString(
+                it.getString(app.rive.runtime.example.R.styleable.RiveSwitch_riveOnAnimation),
+                "on"
+            )
+            offAnimation = defaultedString(
+                it.getString(app.rive.runtime.example.R.styleable.RiveSwitch_riveOffAnimation),
+                "off"
+            )
 
-                booleanStateInput = defaultedString(
-                    getString(app.rive.runtime.example.R.styleable.RiveSwitch_riveBooleanStateInput),
-                    "toggle"
-                )
+            booleanStateInput = defaultedString(
+                it.getString(app.rive.runtime.example.R.styleable.RiveSwitch_riveBooleanStateInput),
+                "toggle"
+            )
 
-                var resourceBytes = resources.openRawResource(resourceId).readBytes()
-                var riveFile = File(resourceBytes)
-                riveArtboardRenderer = RiveArtboardRenderer(autoplay = false)
-                riveArtboardRenderer.setRiveFile(riveFile)
-                stateMachineName?.let {
-                    riveArtboardRenderer.setBooleanState(it, booleanStateInput, isChecked)
-                    riveArtboardRenderer.play(it, isStateMachine = true)
-                }
-//                background = riveDrawable
-            } finally {
-                recycle()
+            val resourceBytes = resources.openRawResource(resourceId).readBytes()
+            val riveFile = File(resourceBytes)
+            riveArtboardRenderer = RiveArtboardRenderer(autoplay = false)
+            riveArtboardRenderer.setRiveFile(riveFile)
+            stateMachineName?.let { name ->
+                riveArtboardRenderer.setBooleanState(name, booleanStateInput, isChecked)
+                riveArtboardRenderer.play(name, isStateMachine = true)
             }
         }
     }

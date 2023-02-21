@@ -11,6 +11,7 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.*
 import androidx.annotation.RawRes
+import androidx.core.content.res.use
 import app.rive.runtime.kotlin.core.*
 import app.rive.runtime.kotlin.renderers.RendererMetrics
 import com.android.volley.NetworkResponse
@@ -60,7 +61,7 @@ open class RiveAnimationView(context: Context, attrs: AttributeSet? = null) :
     open val defaultAutoplay = true
 
     private val rendererAttributes: RendererAttrs
-    public override val renderer: RiveArtboardRenderer
+    public final override val renderer: RiveArtboardRenderer
 
     private var _detachedState: DetachedRiveState? = null
 
@@ -149,31 +150,28 @@ open class RiveAnimationView(context: Context, attrs: AttributeSet? = null) :
     }
 
     init {
-        context.theme.obtainStyledAttributes(
+        val pair = context.theme.obtainStyledAttributes(
             attrs,
             R.styleable.RiveAnimationView,
             0, 0
-        ).apply {
-            try {
-                rendererAttributes = RendererAttrs(
-                    alignmentIndex = getInteger(R.styleable.RiveAnimationView_riveAlignment, 4),
-                    fitIndex = getInteger(R.styleable.RiveAnimationView_riveFit, 1),
-                    loopIndex = getInteger(R.styleable.RiveAnimationView_riveLoop, 3),
-                    autoplay =
-                    getBoolean(R.styleable.RiveAnimationView_riveAutoPlay, defaultAutoplay),
-                    riveTraceAnimations =
-                    getBoolean(R.styleable.RiveAnimationView_riveTraceAnimations, false),
-                    artboardName = getString(R.styleable.RiveAnimationView_riveArtboard),
-                    animationName = getString(R.styleable.RiveAnimationView_riveAnimation),
-                    stateMachineName = getString(R.styleable.RiveAnimationView_riveStateMachine),
-                    resourceId = getResourceId(R.styleable.RiveAnimationView_riveResource, -1),
-                    url = getString(R.styleable.RiveAnimationView_riveUrl),
-                )
-                renderer = makeRenderer()
-            } finally {
-                recycle()
-            }
+        ).use {
+            RendererAttrs(
+                alignmentIndex = it.getInteger(R.styleable.RiveAnimationView_riveAlignment, 4),
+                fitIndex = it.getInteger(R.styleable.RiveAnimationView_riveFit, 1),
+                loopIndex = it.getInteger(R.styleable.RiveAnimationView_riveLoop, 3),
+                autoplay =
+                it.getBoolean(R.styleable.RiveAnimationView_riveAutoPlay, defaultAutoplay),
+                riveTraceAnimations =
+                it.getBoolean(R.styleable.RiveAnimationView_riveTraceAnimations, false),
+                artboardName = it.getString(R.styleable.RiveAnimationView_riveArtboard),
+                animationName = it.getString(R.styleable.RiveAnimationView_riveAnimation),
+                stateMachineName = it.getString(R.styleable.RiveAnimationView_riveStateMachine),
+                resourceId = it.getResourceId(R.styleable.RiveAnimationView_riveResource, -1),
+                url = it.getString(R.styleable.RiveAnimationView_riveUrl),
+            ) to makeRenderer()
         }
+        rendererAttributes = pair.first
+        renderer = pair.second
     }
 
     private fun setupRenderer() {

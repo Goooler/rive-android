@@ -3,26 +3,22 @@ package app.rive.runtime.example.utils
 import android.content.Context
 import android.util.AttributeSet
 import android.view.MotionEvent
+import androidx.core.content.res.use
 import app.rive.runtime.kotlin.RiveAnimationView
 
 class RiveButton(context: Context, attrs: AttributeSet? = null) :
     RiveAnimationView(context, attrs) {
 
-    private var pressAnimation: String?
+    private val pressAnimation: String?
     override val defaultAutoplay = true
 
     init {
-        context.theme.obtainStyledAttributes(
+        pressAnimation = context.theme.obtainStyledAttributes(
             attrs,
             app.rive.runtime.example.R.styleable.RiveButton,
             0, 0
-        ).apply {
-            try {
-                pressAnimation =
-                    getString(app.rive.runtime.example.R.styleable.RiveButton_rivePressAnimation)
-            } finally {
-                recycle()
-            }
+        ).use {
+            it.getString(app.rive.runtime.example.R.styleable.RiveButton_rivePressAnimation)
         }
     }
 
